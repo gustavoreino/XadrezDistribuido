@@ -14,12 +14,12 @@ sudo docker run -it --rm --net chessnet --ip [IP] --name ruby-chess-server ruby-
 Execute the handler:
 ```
 sudo docker build -t python-handler .
-sudo docker run -it --rm --net chessnet --ip [IP] --name python-handler python-handler
+sudo docker run -it --rm --net chessnet --ip 192.168.100.3 --name python-handler python-handler
 ```
 Execute the client:
 ```
 sudo docker build -t golang-client .
-sudo docker run -it --rm --net chessnet --ip 192.168.100.56 golang-client
+sudo docker run -it --rm --net chessnet --ip [IP] golang-client
 ```
 ## Concurrency
 Multiple matches can occur at once because the handler will have multiple threads listening to the gRPC requests of each client and every match will be processed independently.
