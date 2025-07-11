@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package chess;
+
+service ChessService {
+  rpc FindGame (FindGameRequest) returns (FindGameResponse);
+  rpc StartGame (StartGameRequest) returns (StartGameResponse);
+  rpc Move (MoveRequest) returns (MoveResponse);
+  rpc Forfeit (ForfeitRequest) returns (ForfeitResponse);
+}
+
+message FindGameRequest {
+  string client_ip = 1;
+  int32 client_port = 2;
+  string callback_url = 3;
+  string game = 4;
+}
+
+message FindGameResponse {
+  string status = 1;
+  string color = 2;
+  string server_ip = 3;
+  int32 server_port = 4;
+  string game = 5;
+}
+
+message StartGameRequest {}
+
+message StartGameResponse {
+  string game = 1;
+}
+
+message MoveRequest {
+  string client_ip = 1;
+  int32 client_port = 2;
+  string move = 3;
+  string color = 4;
+}
+
+message MoveResponse {
+  string status = 1;
+  string game = 2;
+}
+
+message ForfeitRequest {
+  string client_ip = 1;
+  int32 client_port = 2;
+  string color = 3;
+}
+
+message ForfeitResponse {
+  string status = 1;
+  string message = 2;
+}
+
+service ClientCallback {
+  rpc BoardUpdate(BoardUpdateRequest) returns (BoardUpdateResponse);
+}
+
+message BoardUpdateRequest {
+  string message = 1;
+  string board = 2;
+}
+
+message BoardUpdateResponse {
+  string status = 1;
+}
