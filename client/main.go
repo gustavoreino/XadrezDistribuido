@@ -66,6 +66,7 @@ func startCallbackServer(port string, boardUpdates chan string) {
     }
 }
 
+// Function that sends the forfeit call when the program stops
 func setupForfeitOnInterrupt(handlerClient pb.ChessServiceClient, clientIP string, clientPort int) {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
@@ -146,6 +147,7 @@ func playGame(client pb.ChessServiceClient, ip string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// Sends the find game request to the server
 	res, err := client.FindGame(ctx, req)
 	if err != nil {
 		log.Fatalf("FindGame failed: %v", err)
@@ -161,6 +163,7 @@ func playGame(client pb.ChessServiceClient, ip string) {
 
 	fmt.Printf("\n%s", res.Game)
 
+	// Runs the function that stops the clients on forfeit
 	setupForfeitOnInterrupt(client, ip, 50051)
 
 	fmt.Print("Enter your move (e.g., e2e4) or 'forfeit': ")
@@ -169,7 +172,7 @@ func playGame(client pb.ChessServiceClient, ip string) {
 	}
 
 	done := make(chan struct{})
-
+	// Go routine that sends requests to the Handler
 	go func() {
 		for {
 			select {
@@ -181,6 +184,7 @@ func playGame(client pb.ChessServiceClient, ip string) {
 				defer cancel()
 
 				if text == "forfeit" {
+					// Sends a forefeit request
 					resp, err := client.Forfeit(ctx, &pb.ForfeitRequest{ClientIp: ip, ClientPort: 50051, Color: player_color})
 					if err != nil {
 						fmt.Println("Request error:", err)
@@ -188,10 +192,12 @@ func playGame(client pb.ChessServiceClient, ip string) {
 						return
 					}
 					fmt.Println("Server response:", resp.Message)
+					time.Sleep(20000)
 					os.Exit(0)
 					close(done)
 					return
 				} else {
+					// Sends a move request
 					resp, err := client.Move(ctx, &pb.MoveRequest{
 						Move: text, ClientIp: ip, ClientPort: 50051, Color: player_color})
 					if err != nil {
@@ -201,10 +207,11 @@ func playGame(client pb.ChessServiceClient, ip string) {
 					}
 					fmt.Println(resp.Game, "\n\n", "Server response:", resp.Status)
 
+					// Stops the Client in case of checkmate, stalemate or forfeit
 					if strings.Contains(resp.Status, "Checkmate") ||
 						strings.Contains(resp.Status, "Stalemate") ||
 						strings.Contains(resp.Status, "forfeited") {
-						fmt.Println("🏁 Game ended.")
+						fmt.Println("Game ended.")
 						os.Exit(0)
 						close(done)
 						return
@@ -220,7 +227,7 @@ func playGame(client pb.ChessServiceClient, ip string) {
 	}()
 
 
-	// Interrupts move input if a board update is received
+	// Updates the board
 	for {
 		select {
 		case <-done:
@@ -240,7 +247,7 @@ func main() {
 	} else {
 		fmt.Println("Local IP:", ip)
 	}
-	// Create gRPC client for communication with the Handler
+	// Creates gRPC client for communication with the Handler
 	clientConn, err := grpc.NewClient(
 		"dns:///192.168.100.3:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

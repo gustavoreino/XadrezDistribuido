@@ -221,7 +221,7 @@ class ChessService(chess_pb2_grpc.ChessServiceServicer):
                     cb_stub = chess_pb2_grpc.ClientCallbackStub(cb_channel)
 
                     cb_stub.BoardUpdate(chess_pb2.BoardUpdateRequest(
-                        message= request.color+" forfeited!",
+                        message= request.color+" forfeited",
                         board=""
                     ))
                     print(f"[✓] Sent forfeit update to opponent at {opponent_url}")
