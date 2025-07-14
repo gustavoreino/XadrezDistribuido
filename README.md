@@ -3,7 +3,7 @@ A Distributed Systems Project that implements a system that handles multiples ch
 
 ## Video
 
-https://drive.google.com/file/d/1CRupDzh527E4116pvhVaM5NHkcCqmoyg/view?usp=drive_link
+https://drive.google.com/file/d/1CRupDzh527E4116pvhVaM5NHkcCqmoyg/view?usp=sharing
 
 ## Setup
 Create a Docker network:
